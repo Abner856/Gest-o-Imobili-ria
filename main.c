@@ -63,3 +63,4 @@ printf("valor final da venda:\n");
 scanf("%f", &novaVenda.valor_final);
 limparbuffer();
 }
+}
