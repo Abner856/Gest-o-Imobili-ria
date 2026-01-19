@@ -22,12 +22,23 @@ typedef struct{
     Lote lote_t;
 
 }Venda;
-//declaraçao das funcoes
+// acessar as variaveis de outros arquivos
 extern Venda vendas[MAX_VENDAS];
 extern int totalvendas;
 extern int proximoId;
-
+//declaraçao das funcoes
 void limparbuffer();
 void cadastrarVenda();
+void listarVendas();
+int buscarVendaPorID(int id);
+void exibirVenda(int index);
+int atualizarVenda(int id);
+int excluirVenda(int id);
+void menu();
+
+int salvarVendasArquivo();
+int carregarVendasArquivo();
+void formatarParaArquivo(Venda v, char* linha, int tamanho);
+
 
 #endif
