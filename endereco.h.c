@@ -1,7 +1,7 @@
 #ifndef ENDERECO_H
 #define ENDERECO_H
 #define MAX_VENDAS 10
-#define ARQUIVO_DADOS "vendas.txt
+#define ARQUIVO_DADOS "vendas.txt"
 //preencher dados do terreno
 typedef struct{
     char rua[20];
