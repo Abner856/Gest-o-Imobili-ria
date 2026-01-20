@@ -63,4 +63,90 @@ printf("Dados salvos com sucesso em '%s' (%d vendas)\n", ARQUIVO_DADOS, totalVen
     return 1;
 }
 
-//codigo imcompleto
+int carregarVendasArquivo() {
+    FILE *arquivo = fopen(ARQUIVO_DADOS, "r");
+    if (arquivo == NULL) {
+        printf("Arquivo '%s' não encontrado. Criando novo...\n", ARQUIVO_DADOS);
+        return 0;
+    }
+
+    // Limpa os dados atuais
+    totalvendas = 0;
+
+    char linha[200];
+
+if (fgets(linha, sizeof(linha), arquivo)) {
+        if (strstr(linha, "PROXIMO_ID:") != NULL) {
+            sscanf(linha, "PROXIMO_ID:%d", &proximoId);
+        } else {
+            // Se não encontrar NEXT_ID, volta ao início
+            rewind(arquivo);
+        }
+    }
+//lendo as vendas
+while (fgets(linha, sizeof(linha), arquivo) && totalvendas < MAX_VENDAS) {
+        linha[strcspn(linha, "\n")] = 0; // Remove newline
+        Venda varquivo;
+        char *token;
+        int campo = 0;
+
+        // Usa strtok para separar as strings em pedaços menores(tokens) usando o delimitador '|'
+        // atoi converte uma string em um valor inteiro
+        token = strtok(linha, "|");
+        while (token != NULL && campo < 8) {
+            switch(campo) {
+                case 0: v.ID = atoi(token); break;
+                case 1: strcpy(v.comprador, token); break;
+                case 2: v.valor_final = atof(token); break;
+                case 3: strcpy(v.lote_t.quadra, token); break;
+                case 4: v.lote_t.dimensao = atof(token); break;
+                case 5: strcpy(v.lote_t.endereco_t.rua, token); break;
+                case 6: v.lote_t.endereco_t.numero = atoi(token); break;
+                case 7: strcpy(v.lote_t.endereco_t.cep, token); break;
+            }
+            campo++;
+            token = strtok(NULL, "|");
+        }
+    if (campo == 8) { // Todos os campos foram lidos
+            vendas[totalvendas] = v;
+            totalvendas++;
+        }
+    }
+
+    fclose(arquivo);
+    printf("Dados carregados com sucesso de '%s' (%d vendas)\n", ARQUIVO_DADOS, totalvendas);
+    return 1;
+}
+    void mostrarConteudoArquivo() {
+    FILE *arquivo = fopen(ARQUIVO_DADOS, "r");
+    if (arquivo == NULL) {
+        printf("Arquivo '%s' não encontrado!\n", ARQUIVO_DADOS);
+        return;
+    }
+
+    printf("\n ===CONTEÚDO DO ARQUIVO '%s' ===\n", ARQUIVO_DADOS);
+    printf("========================================\n");
+
+    char linha[200];
+    int linhaNum = 1;
+
+    while (fgets(linha, sizeof(linha), arquivo)) {
+        linha[strcspn(linha, "\n")] = 0; // Remove newline
+        printf("%03d: %s\n", linhaNum++, linha);
+    }
+
+    fclose(arquivo);
+
+    // Estatísticas do arquivo
+    arquivo = fopen(ARQUIVO_DADOS, "r");
+    if (arquivo) {
+        int totallinhas = 0;
+        while (fgets(linha, sizeof(linha), arquivo)) {
+            totalLinhas++;
+        }
+        fclose(arquivo);
+        printf("Estatísticas do arquivo:\n");
+        printf("   Total de linhas: %d\n", totallinhas);
+        printf("   Tamanho aproximado: %ld bytes\n", totallinhas * 100);
+    }
+}
