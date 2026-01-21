@@ -13,7 +13,7 @@ typedef struct {
 } Endereco;
 
 typedef struct {
-    char quadra[20];
+    char quadra[2];
     float dimensao;
     Endereco endereco_t;
 } Lote;
