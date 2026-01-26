@@ -138,7 +138,8 @@ int excluirVenda(int id) {
 int salvarVendasArquivo() {
     FILE *f = fopen(ARQUIVO_DADOS, "w");
     if (!f) return 0;
-    fprintf(f, "PROXIMO_ID:%d\n", proximoId);
+    fprintf(f, "PROXIMO_ID:%d\n ", proximoId);
+     fprintf(f, "ID|NOME|VALOR FINAL|QUADRA|DIMENSAO|RUA|NUM|CEP\n");
     for (int i = 0; i < totalvendas; i++) {
         fprintf(f, "%d|%s|%.2f|%s|%.2f|%s|%d|%s\n",
                 vendas[i].ID, 
