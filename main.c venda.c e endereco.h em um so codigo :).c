@@ -91,7 +91,7 @@ int cadastrarVenda() {
     limparbuffer();
 
     printf("CEP: "); 
-    fgets(v.lote_t.endereco_t.cep, 11, stdin);
+    fgets(v.lote_t.endereco_t.cep, 10, stdin);
     v.lote_t.endereco_t.cep[strcspn(v.lote_t.endereco_t.cep, "\n")] = 0;
 
     vendas[totalvendas++] = v;
