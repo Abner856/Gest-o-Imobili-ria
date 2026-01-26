@@ -2,9 +2,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-//definiçao das estruturas
+// =========================================================
+// DEFINIÇÕES E ESTRUTURAS
+// =========================================================
 #define MAX_VENDAS 10
-#define ARQUIVO_DADOS "vendas.txt"
+#define ARQUIVO_DADOS "./vendas.txt"
 
 typedef struct {
     char rua[20];
@@ -13,7 +15,7 @@ typedef struct {
 } Endereco;
 
 typedef struct {
-    char quadra[2];
+    char quadra[20];
     float dimensao;
     Endereco endereco_t;
 } Lote;
@@ -40,9 +42,9 @@ int salvarVendasArquivo();
 int carregarVendasArquivo();
 void mostrarConteudoArquivo();
 
-
-//implementação das funçoes
-
+// =========================================================
+// IMPLEMENTAÇÃO DAS FUNÇÕES
+// =========================================================
 
 void limparbuffer() {
     int c;
@@ -122,7 +124,7 @@ int buscarVendaPorID(int id) {
 }
 
 int excluirVenda(int id) {
-    int index = buscarVendaPorID(id);//index usada para acessar indices em listas
+    int index = buscarVendaPorID(id);
     if (index == -1) { printf("ID nao encontrado.\n"); return 0; }
 
     for (int i = index; i < totalvendas - 1; i++) {
@@ -158,8 +160,7 @@ int carregarVendasArquivo() {
     totalvendas = 0;
     char linha[256];
     if (fgets(linha, sizeof(linha), f)) sscanf(linha, "PROXIMO_ID:%d", &proximoId);
-    //usamos o strtok para separar as strings em pedaços(tokens) modificando o delimitador por "\0"
-    //e o atoi que converte uma string em int 
+
     while (fgets(linha, sizeof(linha), f) && totalvendas < MAX_VENDAS) {
         Venda v;
         char *t = strtok(linha, "|");
@@ -185,7 +186,10 @@ void mostrarConteudoArquivo() {
     fclose(f);
 }
 
-//main principal
+// =========================================================
+// FUNÇÃO PRINCIPAL
+// =========================================================
+
 int main() {
     int opcao, id_busca;
 
