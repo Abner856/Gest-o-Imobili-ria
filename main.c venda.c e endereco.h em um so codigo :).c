@@ -11,7 +11,7 @@
 typedef struct {
     char rua[20];
     int numero;
-    char cep[11];
+    char cep[10];
 } Endereco;
 
 typedef struct {
