@@ -1,3 +1,4 @@
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -5,7 +6,7 @@
 // =========================================================
 // DEFINIÇÕES E ESTRUTURAS
 // =========================================================
-#define MAX_VENDAS 10
+#define MAX_VENDAS 1000
 #define ARQUIVO_DADOS "./vendas.txt"
 
 typedef struct {
@@ -103,16 +104,17 @@ void listarVendas() {
         printf("\nNenhuma venda cadastrada.\n"); 
         return; 
     }
-    printf("\nID | Comprador      | Valor      | Quadra | Dimensao | CEP\n");
+    printf("\nID | Comprador      | Valor      | Quadra | Dimensao | Rua | CEP\n");
     printf("---------------------------------------------------------------\n");
     for (int i = 0; i < totalvendas; i++) {
-        printf("%02d | %-14s | R$%-8.2f | %-6s | %-8.2f | %s\n",
+        printf("%02d | %-14s | R$%-8.2f | %-6s | %-8.2f |  %s  | %s\n" ,
                vendas[i].ID, 
                vendas[i].comprador, 
                vendas[i].valor_final, 
                vendas[i].lote_t.quadra, 
                vendas[i].lote_t.dimensao,
-               vendas[i].lote_t.endereco_t.cep);
+               vendas[i].lote_t.endereco_t.cep,
+               vendas[i].lote_t.endereco_t.rua);
     }
 }
 
@@ -139,9 +141,9 @@ int salvarVendasArquivo() {
     FILE *f = fopen(ARQUIVO_DADOS, "w");
     if (!f) return 0;
     fprintf(f, "PROXIMO_ID:%d\n ", proximoId);
-     fprintf(f, "ID|NOME|VALOR FINAL|QUADRA|DIMENSAO|RUA|NUM|CEP\n");
+     fprintf(f,"\nID | Comprador      | Valor      | Quadra | Dimensao | Rua | Numero | CEP\n");
     for (int i = 0; i < totalvendas; i++) {
-        fprintf(f, "%d|%s|%.2f|%s|%.2f|%s|%d|%s\n",
+        fprintf(f, "%d |%s |%.2f |%s |%.2f |%s |%d |%s\n",
                 vendas[i].ID, 
                 vendas[i].comprador, 
                 vendas[i].valor_final,
