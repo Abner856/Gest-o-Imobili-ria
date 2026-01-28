@@ -1,12 +1,10 @@
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-// =========================================================
 // DEFINIÇÕES E ESTRUTURAS
-// =========================================================
-#define MAX_VENDAS 1000
+
+#define MAX_VENDAS 10
 #define ARQUIVO_DADOS "./vendas.txt"
 
 typedef struct {
@@ -43,9 +41,7 @@ int salvarVendasArquivo();
 int carregarVendasArquivo();
 void mostrarConteudoArquivo();
 
-// =========================================================
 // IMPLEMENTAÇÃO DAS FUNÇÕES
-// =========================================================
 
 void limparbuffer() {
     int c;
@@ -91,10 +87,21 @@ int cadastrarVenda() {
     scanf("%d", &v.lote_t.endereco_t.numero); 
     limparbuffer();
 
-    printf("CEP: "); 
-    fgets(v.lote_t.endereco_t.cep, 10, stdin);
-    v.lote_t.endereco_t.cep[strcspn(v.lote_t.endereco_t.cep, "\n")] = 0;
+    // LOOP DE VALIDAÇÃO DO CEP
+    int cepValido = 0;
+    do {
+        printf("CEP (apenas 8 numeros): "); 
+        fgets(v.lote_t.endereco_t.cep, 10, stdin);
+        v.lote_t.endereco_t.cep[strcspn(v.lote_t.endereco_t.cep, "\n")] = 0;
 
+        // Verifica o tamanho usando IF
+        if (strlen(v.lote_t.endereco_t.cep) != 8) {
+            printf("[ERRO] CEP invalido! Digite exatamente 8 caracteres.\n");
+        } else {
+            cepValido = 1;
+        }
+    } while (!cepValido);
+    
     vendas[totalvendas++] = v;
     return 1;
 }
@@ -104,17 +111,16 @@ void listarVendas() {
         printf("\nNenhuma venda cadastrada.\n"); 
         return; 
     }
-    printf("\nID | Comprador      | Valor      | Quadra | Dimensao | Rua | CEP\n");
+    printf("\nID | Comprador      | Valor      | Quadra | Dimensao | CEP\n");
     printf("---------------------------------------------------------------\n");
     for (int i = 0; i < totalvendas; i++) {
-        printf("%02d | %-14s | R$%-8.2f | %-6s | %-8.2f |  %s  | %s\n" ,
+        printf("%02d | %-14s | R$%-8.2f | %-6s | %-8.2f | %s\n",
                vendas[i].ID, 
                vendas[i].comprador, 
                vendas[i].valor_final, 
                vendas[i].lote_t.quadra, 
                vendas[i].lote_t.dimensao,
-               vendas[i].lote_t.endereco_t.cep,
-               vendas[i].lote_t.endereco_t.rua);
+               vendas[i].lote_t.endereco_t.cep);
     }
 }
 
@@ -140,10 +146,9 @@ int excluirVenda(int id) {
 int salvarVendasArquivo() {
     FILE *f = fopen(ARQUIVO_DADOS, "w");
     if (!f) return 0;
-    fprintf(f, "PROXIMO_ID:%d\n ", proximoId);
-     fprintf(f,"\nID | Comprador      | Valor      | Quadra | Dimensao | Rua | Numero | CEP\n");
+    fprintf(f, "PROXIMO_ID:%d\n", proximoId);
     for (int i = 0; i < totalvendas; i++) {
-        fprintf(f, "%d |%s |%.2f |%s |%.2f |%s |%d |%s\n",
+        fprintf(f, "%d|%s|%.2f|%s|%.2f|%s|%d|%s\n",
                 vendas[i].ID, 
                 vendas[i].comprador, 
                 vendas[i].valor_final,
@@ -163,7 +168,8 @@ int carregarVendasArquivo() {
     totalvendas = 0;
     char linha[256];
     if (fgets(linha, sizeof(linha), f)) sscanf(linha, "PROXIMO_ID:%d", &proximoId);
-
+    //usamos o strtok para separar as strings em pedaços(tokens) modificando o delimitador por "\0"
+    //e o atoi que converte uma string em int
     while (fgets(linha, sizeof(linha), f) && totalvendas < MAX_VENDAS) {
         Venda v;
         char *t = strtok(linha, "|");
@@ -188,10 +194,6 @@ void mostrarConteudoArquivo() {
     while ((c = fgetc(f)) != EOF) printf("%c", c);
     fclose(f);
 }
-
-// =========================================================
-// FUNÇÃO PRINCIPAL
-// =========================================================
 
 int main() {
     int opcao, id_busca;
@@ -226,6 +228,7 @@ int main() {
                 printf("Digite o ID para buscar: ");
                 scanf("%d", &id_busca);
                 limparbuffer();
+                //index usada para acessar indices em listas
                 int index = buscarVendaPorID(id_busca);
                 if (index != -1) {
                     printf("\n--- Detalhes da Venda ---\n");
