@@ -2,10 +2,13 @@
 #include <stdlib.h>
 #include <string.h>
 
-// DEFINIÇÕES E ESTRUTURAS
-
 #define MAX_VENDAS 10
 #define ARQUIVO_DADOS "./vendas.txt"
+
+// Definição de cores para o terminal
+#define RED     "\033[1;31m"
+#define GREEN   "\033[1;32m"
+#define RESET   "\033[0m"
 
 typedef struct {
     char rua[20];
@@ -30,7 +33,7 @@ Venda vendas[MAX_VENDAS];
 int totalvendas = 0;
 int proximoId = 1;
 
-// Protótipos
+// ================== PROTÓTIPOS ==================
 void limparbuffer();
 void menu();
 int cadastrarVenda();
@@ -41,7 +44,7 @@ int salvarVendasArquivo();
 int carregarVendasArquivo();
 void mostrarConteudoArquivo();
 
-// IMPLEMENTAÇÃO DAS FUNÇÕES
+// ================== FUNÇÕES ==================
 
 void limparbuffer() {
     int c;
@@ -57,69 +60,65 @@ void menu() {
 
 int cadastrarVenda() {
     if (totalvendas >= MAX_VENDAS) {
-        printf("Erro: Memoria cheia.\n");
+        printf(RED "Erro: Memoria cheia.\n" RESET);
         return 0;
     }
+
     Venda v;
     v.ID = proximoId++;
 
-    printf("Comprador: "); 
+    printf("Nome do comprador: ");
     fgets(v.comprador, 30, stdin);
     v.comprador[strcspn(v.comprador, "\n")] = 0;
 
-    printf("Valor Final: "); 
-    scanf("%f", &v.valor_final); 
+    printf("Valor da venda: ");
+    scanf("%f", &v.valor_final);
     limparbuffer();
 
-    printf("Quadra: "); 
+    printf("Quadra: ");
     fgets(v.lote_t.quadra, 20, stdin);
     v.lote_t.quadra[strcspn(v.lote_t.quadra, "\n")] = 0;
 
-    printf("Dimensao (m2): "); 
-    scanf("%f", &v.lote_t.dimensao); 
+    printf("Dimensao: ");
+    scanf("%f", &v.lote_t.dimensao);
     limparbuffer();
 
-    printf("Rua: "); 
+    printf("Rua: ");
     fgets(v.lote_t.endereco_t.rua, 20, stdin);
     v.lote_t.endereco_t.rua[strcspn(v.lote_t.endereco_t.rua, "\n")] = 0;
 
-    printf("Numero: "); 
-    scanf("%d", &v.lote_t.endereco_t.numero); 
+    printf("Numero: ");
+    scanf("%d", &v.lote_t.endereco_t.numero);
     limparbuffer();
 
-    // LOOP DE VALIDAÇÃO DO CEP
     int cepValido = 0;
     do {
-        printf("CEP (apenas 8 numeros): "); 
+        printf("CEP (8 digitos): ");
         fgets(v.lote_t.endereco_t.cep, 10, stdin);
         v.lote_t.endereco_t.cep[strcspn(v.lote_t.endereco_t.cep, "\n")] = 0;
 
-        // Verifica o tamanho usando IF
         if (strlen(v.lote_t.endereco_t.cep) != 8) {
-            printf("[ERRO] CEP invalido! Digite exatamente 8 caracteres.\n");
+            printf(RED "[ERRO] CEP invalido!\n" RESET);
         } else {
             cepValido = 1;
         }
     } while (!cepValido);
-    
+
     vendas[totalvendas++] = v;
+    printf(GREEN "Venda cadastrada com sucesso na memoria!\n" RESET);
     return 1;
 }
 
 void listarVendas() {
-    if (totalvendas == 0) { 
-        printf("\nNenhuma venda cadastrada.\n"); 
-        return; 
+    if (totalvendas == 0) {
+        printf(RED "\nNenhuma venda cadastrada.\n" RESET);
+        return;
     }
-    printf("\nID | Comprador      | Valor      | Quadra | Dimensao | CEP\n");
-    printf("---------------------------------------------------------------\n");
+    printf("\nID | Comprador | Valor | Quadra | Dim. | CEP\n");
     for (int i = 0; i < totalvendas; i++) {
-        printf("%02d | %-14s | R$%-8.2f | %-6s | %-8.2f | %s\n",
-               vendas[i].ID, 
-               vendas[i].comprador, 
-               vendas[i].valor_final, 
-               vendas[i].lote_t.quadra, 
-               vendas[i].lote_t.dimensao,
+        printf("%02d | %s | %.2f | %s | %.2f | %s\n",
+               vendas[i].ID, vendas[i].comprador, vendas[i].valor_final,
+               vendas[i].lote_t.quadra, vendas[i].lote_t.dimensao,
                vendas[i].lote_t.endereco_t.cep);
     }
 }
@@ -133,81 +132,88 @@ int buscarVendaPorID(int id) {
 
 int excluirVenda(int id) {
     int index = buscarVendaPorID(id);
-    if (index == -1) { printf("ID nao encontrado.\n"); return 0; }
-
+    if (index == -1) {
+        printf(RED "ID nao encontrado.\n" RESET);
+        return 0;
+    }
     for (int i = index; i < totalvendas - 1; i++) {
         vendas[i] = vendas[i + 1];
     }
     totalvendas--;
-    printf("Venda removida com sucesso.\n");
+    printf(GREEN "Venda removida com sucesso.\n" RESET);
     return 1;
 }
 
 int salvarVendasArquivo() {
     FILE *f = fopen(ARQUIVO_DADOS, "w");
-    if (!f) return 0;
+    if (!f) {
+        printf(RED "Erro ao abrir o arquivo para escrita!\n" RESET);
+        return 0;
+    }
+
     fprintf(f, "PROXIMO_ID:%d\n", proximoId);
     for (int i = 0; i < totalvendas; i++) {
         fprintf(f, "%d|%s|%.2f|%s|%.2f|%s|%d|%s\n",
-                vendas[i].ID, 
-                vendas[i].comprador, 
-                vendas[i].valor_final,
-                vendas[i].lote_t.quadra, 
-                vendas[i].lote_t.dimensao,
-                vendas[i].lote_t.endereco_t.rua, 
-                vendas[i].lote_t.endereco_t.numero,
+                vendas[i].ID, vendas[i].comprador, vendas[i].valor_final,
+                vendas[i].lote_t.quadra, vendas[i].lote_t.dimensao,
+                vendas[i].lote_t.endereco_t.rua, vendas[i].lote_t.endereco_t.numero,
                 vendas[i].lote_t.endereco_t.cep);
     }
     fclose(f);
+    printf(GREEN "Dados salvos no arquivo com sucesso!\n" RESET);
     return 1;
 }
 
 int carregarVendasArquivo() {
     FILE *f = fopen(ARQUIVO_DADOS, "r");
-    if (!f) return 0;
+    if (!f) {
+        printf(RED "Arquivo nao encontrado para carregamento.\n" RESET);
+        return 0;
+    }
+
     totalvendas = 0;
     char linha[256];
-    if (fgets(linha, sizeof(linha), f)) sscanf(linha, "PROXIMO_ID:%d", &proximoId);
-    //usamos o strtok para separar as strings em pedaços(tokens) modificando o delimitador por "\0"
-    //e o atoi que converte uma string em int
+    if (fgets(linha, sizeof(linha), f)) {
+        sscanf(linha, "PROXIMO_ID:%d", &proximoId);
+    }
+
     while (fgets(linha, sizeof(linha), f) && totalvendas < MAX_VENDAS) {
         Venda v;
         char *t = strtok(linha, "|");
-        if(t) v.ID = atoi(t);
-        t = strtok(NULL, "|"); if(t) strcpy(v.comprador, t);
-        t = strtok(NULL, "|"); if(t) v.valor_final = (float)atof(t);
-        t = strtok(NULL, "|"); if(t) strcpy(v.lote_t.quadra, t);
-        t = strtok(NULL, "|"); if(t) v.lote_t.dimensao = (float)atof(t);
-        t = strtok(NULL, "|"); if(t) strcpy(v.lote_t.endereco_t.rua, t);
-        t = strtok(NULL, "|"); if(t) v.lote_t.endereco_t.numero = atoi(t);
-        t = strtok(NULL, "|"); if(t) strcpy(v.lote_t.endereco_t.cep, t);
+        if (t) v.ID = atoi(t);
+        t = strtok(NULL, "|"); if (t) strcpy(v.comprador, t);
+        t = strtok(NULL, "|"); if (t) v.valor_final = atof(t);
+        t = strtok(NULL, "|"); if (t) strcpy(v.lote_t.quadra, t);
+        t = strtok(NULL, "|"); if (t) v.lote_t.dimensao = atof(t);
+        t = strtok(NULL, "|"); if (t) strcpy(v.lote_t.endereco_t.rua, t);
+        t = strtok(NULL, "|"); if (t) v.lote_t.endereco_t.numero = atoi(t);
+        t = strtok(NULL, "|"); if (t) strcpy(v.lote_t.endereco_t.cep, t);
         vendas[totalvendas++] = v;
     }
     fclose(f);
+    printf(GREEN "Dados carregados com sucesso!\n" RESET);
     return 1;
 }
 
 void mostrarConteudoArquivo() {
     FILE *f = fopen(ARQUIVO_DADOS, "r");
-    if (!f) { printf("Arquivo nao encontrado.\n"); return; }
+    if (!f) {
+        printf(RED "Arquivo nao encontrado.\n" RESET);
+        return;
+    }
+    printf("\n--- CONTEUDO BRUTO DO ARQUIVO ---\n");
     char c;
     while ((c = fgetc(f)) != EOF) printf("%c", c);
     fclose(f);
 }
 
 int main() {
-    int opcao, id_busca;
-
-    if (carregarVendasArquivo()) {
-        printf("Sistema: Dados carregados com sucesso!\n");
-    } else {
-        printf("Sistema: Nenhum arquivo de dados encontrado. Iniciando novo banco.\n");
-    }
+    int opcao, id_busca, pos;
+    carregarVendasArquivo();
 
     do {
         menu();
         if (scanf("%d", &opcao) != 1) {
-            printf("Erro: Digite apenas numeros.\n");
             limparbuffer();
             continue;
         }
@@ -215,77 +221,38 @@ int main() {
 
         switch (opcao) {
             case 1:
-                if (cadastrarVenda()) {
-                    printf("Sucesso: Venda registrada na memoria.\n");
-                }
+                cadastrarVenda();
                 break;
-
             case 2:
                 listarVendas();
                 break;
-
-            case 3: {
-                printf("Digite o ID para buscar: ");
+            case 3:
+                printf("Digite o ID para busca: ");
                 scanf("%d", &id_busca);
-                limparbuffer();
-                //index usada para acessar indices em listas
-                int index = buscarVendaPorID(id_busca);
-                if (index != -1) {
-                    printf("\n--- Detalhes da Venda ---\n");
-                    printf("Comprador: %s\nValor: R$ %.2f\nQuadra: %s\nDimensao: %.2f m2\nCEP: %s\n",
-                            vendas[index].comprador, 
-                            vendas[index].valor_final,
-                            vendas[index].lote_t.quadra,
-                            vendas[index].lote_t.dimensao,
-                            vendas[index].lote_t.endereco_t.cep);
-                } else {
-                    printf("Erro: Venda com ID %d nao encontrada.\n", id_busca);
-                }
+                pos = buscarVendaPorID(id_busca);
+                if (pos != -1) printf(GREEN "ID %d encontrado: %s\n" RESET, id_busca, vendas[pos].comprador);
+                else printf(RED "Venda com ID %d nao encontrada.\n" RESET, id_busca);
                 break;
-            }
-
-            case 4: {
+            case 4:
                 printf("Digite o ID para excluir: ");
                 scanf("%d", &id_busca);
-                limparbuffer();
                 excluirVenda(id_busca);
                 break;
-            }
-
             case 5:
-                if (salvarVendasArquivo()) {
-                    printf("Sucesso: Arquivo atualizado!\n");
-                } else {
-                    printf("Erro ao salvar arquivo.\n");
-                }
+                salvarVendasArquivo();
                 break;
-
             case 6:
-                if (carregarVendasArquivo()) {
-                    printf("Dados recarregados do arquivo.\n");
-                }
+                carregarVendasArquivo();
                 break;
-
             case 7:
-                printf("\n--- Conteudo Bruto do Arquivo ---\n");
                 mostrarConteudoArquivo();
                 break;
-
-            case 0: {
-                printf("Deseja salvar antes de sair? (1-Sim / 0-Nao): ");
-                int salvar;
-                if(scanf("%d", &salvar) == 1 && salvar == 1) {
-                    salvarVendasArquivo();
-                }
-                printf("Finalizando programa...\n");
+            case 0:
+                printf("Saindo...\n");
                 break;
-            }
-
             default:
-                printf("Opcao invalida!\n");
-                break;
+                printf(RED "Opcao invalida!\n" RESET);
         }
-
     } while (opcao != 0);
 
     return 0;
