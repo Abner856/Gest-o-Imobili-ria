@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <locale.h>
 
 #define MAX_VENDAS 10
 #define ARQUIVO_DADOS "./vendas.txt"
@@ -221,6 +222,8 @@ void mostrarConteudoArquivo() {
 }
 
 int main() {
+    setlocale(LC_ALL, "Portuguese"); 
+
     int opcao, id_busca, pos;
     carregarVendasArquivo();
 
